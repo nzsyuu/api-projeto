@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id       Int     @id @default(autoincrement())
+  nome     String
+  email    String  @unique
+  senha    String
+  criadoEm DateTime @default(now()) 
+}
+enum StatusDenuncia {
+  RECEBIDO
+  ENCERRADO
+  ANALISADO
+  EM_ANDAMENTO
+  ARQUIVADO
+}
+
+model Denuncia {
+  id          Int      @id @default(autoincrement()) 
+  codigo      String   @default(uuid()) @unique 
+  titulo      String   
+  descricao   String   
+  status      StatusDenuncia @default(RECEBIDO)
+  localizacao String   
+  criadoEm    DateTime @default(now()) 
+  atualizadoEm DateTime     @updatedAt
+
+  ocorrencias Ocorrencia[]
+}
+
+
+enum StatusOcorrencia {
+  ABERTA
+  CONCLUIDA
+  PENDENTE
+}
+
+model Ocorrencia {
+  id         Int      @id @default(autoincrement())
+  titulo     String
+  descricao  String
+  status     StatusOcorrencia   @default(ABERTA)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  denuncia   Denuncia @relation(fields: [denunciaId], references: [id])
+  denunciaId Int
+}
+
+
+
